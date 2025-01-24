@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import BitcoinPriceChart from './components/BitcoinPriceChart';
 
 interface FormData {
@@ -39,6 +39,16 @@ interface BitcoinPrice {
   }
 }
 
+interface LastCalculation {
+  timestamp: number;
+  values: {
+    hashRate: string;
+    power: string;
+    costPerKwh: string;
+    initialInvestment: string;
+  };
+}
+
 const defaultFormData: FormData = {
   hashRate: "200", // 200 TH/s for a typical modern ASIC miner
   power: "3000", // 3000W power consumption
@@ -52,6 +62,7 @@ export default function Home() {
   const [error, setError] = useState("");
   const [btcPrice, setBtcPrice] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const lastCalculation = useRef<LastCalculation | null>(null);
 
   useEffect(() => {
     const fetchBtcPrice = async () => {
@@ -75,6 +86,22 @@ export default function Home() {
   }, []);
 
   const calculateProfitability = async (data: FormData) => {
+    const now = Date.now();
+    const THROTTLE_TIME = 15000; // 15 seconds in milliseconds
+
+    // Check if we've calculated these exact values recently
+    if (lastCalculation.current) {
+      const timeSinceLastCalc = now - lastCalculation.current.timestamp;
+      const sameValues = Object.entries(data).every(
+        ([key, value]) => lastCalculation.current?.values[key as keyof FormData] === value
+      );
+
+      if (sameValues && timeSinceLastCalc < THROTTLE_TIME) {
+        // Skip calculation if same values and within throttle time
+        return;
+      }
+    }
+
     setIsLoading(true);
     try {
       const response = await fetch('http://localhost:8000/calculate', {
@@ -94,6 +121,12 @@ export default function Home() {
       const result = await response.json();
       setResults(result);
       setError("");
+
+      // Update last calculation reference
+      lastCalculation.current = {
+        timestamp: now,
+        values: { ...data },
+      };
     } catch (err) {
       console.error('Calculation error:', err);
       setError("Failed to calculate profitability. Please try again.");
