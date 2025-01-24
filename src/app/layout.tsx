@@ -29,9 +29,14 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="antialiased">
+      <body className="antialiased min-h-screen flex flex-col">
         <ThemeToggle />
-        {children}
+        <main className="flex-grow">
+          {children}
+        </main>
+        <footer className="text-center py-6 text-sm text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-900">
+          Built by Cameron Baughn for Hut8
+        </footer>
       </body>
     </html>
   );
