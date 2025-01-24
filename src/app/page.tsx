@@ -75,12 +75,11 @@ export default function Home() {
         setBtcPrice(data.bitcoin.usd);
       } catch (err) {
         console.error('Failed to fetch Bitcoin price:', err);
-        // Don't set any error message, just silently fail
       }
     };
 
-    fetchBtcPrice();
-    const interval = setInterval(fetchBtcPrice, 60000);
+    fetchBtcPrice(); // Initial fetch
+    const interval = setInterval(fetchBtcPrice, 120000); // 120000ms = 2 minutes
     
     return () => clearInterval(interval);
   }, []);
