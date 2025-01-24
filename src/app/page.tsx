@@ -51,7 +51,6 @@ export default function Home() {
   const [results, setResults] = useState<MiningResults | null>(null);
   const [error, setError] = useState("");
   const [btcPrice, setBtcPrice] = useState<number | null>(null);
-  const [priceError, setPriceError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -60,18 +59,16 @@ export default function Home() {
         const response = await fetch(
           'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd'
         );
-        if (!response.ok) throw new Error('Failed to fetch Bitcoin price');
+        if (!response.ok) return;
         const data: BitcoinPrice = await response.json();
         setBtcPrice(data.bitcoin.usd);
-        setPriceError("");
       } catch (err) {
         console.error('Failed to fetch Bitcoin price:', err);
-        setPriceError("Unable to fetch current Bitcoin price");
+        // Don't set any error message, just silently fail
       }
     };
 
     fetchBtcPrice();
-    // Refresh price every minute
     const interval = setInterval(fetchBtcPrice, 60000);
     
     return () => clearInterval(interval);
@@ -122,24 +119,40 @@ export default function Home() {
       </h2>
       
       {isLoading ? (
-        <div className="space-y-6">
+        <div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {['Daily', 'Monthly', 'Yearly'].map((period) => (
-              <div key={period} className="animate-pulse">
+              <div key={period}>
                 <h3 className="font-medium mb-2 text-gray-900 dark:text-white">{period}</h3>
                 <div className="space-y-2">
-                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
-                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
-                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-2/3"></div>
+                  <div className="flex items-center space-x-1">
+                    <div className="text-gray-700 dark:text-gray-300">Revenue: </div>
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
+                  </div>
+                  <div className="flex items-center space-x-1">
+                    <div className="text-gray-700 dark:text-gray-300">Cost: </div>
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24"></div>
+                  </div>
+                  <div className="flex items-center space-x-1">
+                    <div className="text-gray-700 dark:text-gray-300">Profit: </div>
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-28"></div>
+                  </div>
                 </div>
               </div>
             ))}
           </div>
-          <div className="pt-6 border-t border-gray-200 dark:border-gray-700">
+          
+          <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
             <h3 className="font-medium mb-2 text-gray-900 dark:text-white">Additional Metrics</h3>
             <div className="space-y-2">
-              <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-2/3"></div>
-              <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+              <div className="flex items-center space-x-1">
+                <div className="text-gray-700 dark:text-gray-300">Cost to Mine 1 BTC: </div>
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
+              </div>
+              <div className="flex items-center space-x-1">
+                <div className="text-gray-700 dark:text-gray-300">Break-even Timeline: </div>
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-28"></div>
+              </div>
             </div>
           </div>
         </div>
@@ -150,29 +163,47 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
               <h3 className="font-medium mb-2 text-gray-900 dark:text-white">Daily</h3>
-              <p className="text-gray-700 dark:text-gray-300">Revenue: ${results.dailyRevenueUSD.toLocaleString()} (₿{results.dailyRevenueBTC.toLocaleString(undefined, { minimumFractionDigits: 8 })})</p>
-              <p className="text-gray-700 dark:text-gray-300">Cost: ${results.dailyCost.toLocaleString()}</p>
-              <p className={`font-medium ${results.dailyProfitUSD >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                Profit: ${results.dailyProfitUSD.toLocaleString()}
-              </p>
+              <div className="space-y-2">
+                <div>
+                  <p className="text-gray-700 dark:text-gray-300">Revenue: ${results.dailyRevenueUSD.toLocaleString()}</p>
+                  <p className="text-gray-700 dark:text-gray-300 text-sm">(₿{results.dailyRevenueBTC.toLocaleString(undefined, { minimumFractionDigits: 8 })})</p>
+                </div>
+                <p className="text-gray-700 dark:text-gray-300">Cost: ${results.dailyCost.toLocaleString()}</p>
+                <p className={`font-medium ${results.dailyProfitUSD >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                  Profit: ${results.dailyProfitUSD.toLocaleString()}
+                </p>
+              </div>
             </div>
+            
             <div>
               <h3 className="font-medium mb-2 text-gray-900 dark:text-white">Monthly</h3>
-              <p className="text-gray-700 dark:text-gray-300">Revenue: ${results.monthlyRevenueUSD.toLocaleString()} (₿{results.monthlyRevenueBTC.toLocaleString(undefined, { minimumFractionDigits: 8 })})</p>
-              <p className="text-gray-700 dark:text-gray-300">Cost: ${results.monthlyCost.toLocaleString()}</p>
-              <p className={`font-medium ${results.monthlyProfitUSD >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                Profit: ${results.monthlyProfitUSD.toLocaleString()}
-              </p>
+              <div className="space-y-2">
+                <div>
+                  <p className="text-gray-700 dark:text-gray-300">Revenue: ${results.monthlyRevenueUSD.toLocaleString()}</p>
+                  <p className="text-gray-700 dark:text-gray-300 text-sm">(₿{results.monthlyRevenueBTC.toLocaleString(undefined, { minimumFractionDigits: 8 })})</p>
+                </div>
+                <p className="text-gray-700 dark:text-gray-300">Cost: ${results.monthlyCost.toLocaleString()}</p>
+                <p className={`font-medium ${results.monthlyProfitUSD >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                  Profit: ${results.monthlyProfitUSD.toLocaleString()}
+                </p>
+              </div>
             </div>
+            
             <div>
               <h3 className="font-medium mb-2 text-gray-900 dark:text-white">Yearly</h3>
-              <p className="text-gray-700 dark:text-gray-300">Revenue: ${results.yearlyRevenueUSD.toLocaleString()} (₿{results.yearlyRevenueBTC.toLocaleString(undefined, { minimumFractionDigits: 8 })})</p>
-              <p className="text-gray-700 dark:text-gray-300">Cost: ${results.yearlyCost.toLocaleString()}</p>
-              <p className={`font-medium ${results.yearlyProfitUSD >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                Profit: ${results.yearlyProfitUSD.toLocaleString()}
-              </p>
+              <div className="space-y-2">
+                <div>
+                  <p className="text-gray-700 dark:text-gray-300">Revenue: ${results.yearlyRevenueUSD.toLocaleString()}</p>
+                  <p className="text-gray-700 dark:text-gray-300 text-sm">(₿{results.yearlyRevenueBTC.toLocaleString(undefined, { minimumFractionDigits: 8 })})</p>
+                </div>
+                <p className="text-gray-700 dark:text-gray-300">Cost: ${results.yearlyCost.toLocaleString()}</p>
+                <p className={`font-medium ${results.yearlyProfitUSD >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                  Profit: ${results.yearlyProfitUSD.toLocaleString()}
+                </p>
+              </div>
             </div>
           </div>
+          
           <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
             <h3 className="font-medium mb-2 text-gray-900 dark:text-white">Additional Metrics</h3>
             <p className="text-gray-700 dark:text-gray-300">Cost to Mine 1 BTC: ${results.costToMine.toLocaleString()}</p>
@@ -194,13 +225,9 @@ export default function Home() {
         </h1>
 
         <div className="text-center mb-8">
-          {btcPrice ? (
+          {btcPrice && (
             <div className="text-xl text-gray-700 dark:text-gray-300">
               Current BTC Price: <span className="font-semibold text-blue-600 dark:text-blue-400">${btcPrice.toLocaleString()}</span>
-            </div>
-          ) : (
-            <div className="text-red-600 dark:text-red-400">
-              {priceError || "Loading Bitcoin price..."}
             </div>
           )}
         </div>
