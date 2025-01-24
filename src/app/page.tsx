@@ -107,29 +107,26 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen p-8 bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen p-8 bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
       <main className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold mb-8 text-center text-gray-900 dark:text-white">
+        <h1 className="text-4xl font-bold mb-4 text-center text-gray-900 dark:text-white bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-teal-500">
           Bitcoin Mining Calculator
         </h1>
 
         <div className="text-center mb-8">
           {btcPrice ? (
             <div className="text-xl text-gray-700 dark:text-gray-300">
-              Current BTC Price: <span className="font-semibold">${btcPrice.toLocaleString()}</span>
-              <div className="text-sm text-gray-500 dark:text-gray-400">
-                Updates every minute
-              </div>
+              Current BTC Price: <span className="font-semibold text-blue-600 dark:text-blue-400">${btcPrice.toLocaleString()}</span>
             </div>
           ) : (
-            <div className="text-red-600 dark:text-red-400">
+            <div className="text-gray-600 dark:text-gray-400">
               {priceError || "Loading Bitcoin price..."}
             </div>
           )}
         </div>
 
-        <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div>
               <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
                 Hash Rate (TH/s)
@@ -139,7 +136,7 @@ export default function Home() {
                 min="0"
                 step="0.1"
                 required
-                className="w-full p-2 border rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600"
+                className="w-full p-3 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 value={formData.hashRate}
                 onChange={(e) => setFormData({ ...formData, hashRate: e.target.value })}
               />
@@ -153,7 +150,7 @@ export default function Home() {
                 type="number"
                 min="0"
                 required
-                className="w-full p-2 border rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600"
+                className="w-full p-3 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 value={formData.power}
                 onChange={(e) => setFormData({ ...formData, power: e.target.value })}
               />
@@ -168,7 +165,7 @@ export default function Home() {
                 min="0"
                 step="0.01"
                 required
-                className="w-full p-2 border rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600"
+                className="w-full p-3 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 value={formData.costPerKwh}
                 onChange={(e) => setFormData({ ...formData, costPerKwh: e.target.value })}
               />
@@ -183,7 +180,7 @@ export default function Home() {
                 min="0"
                 step="0.01"
                 required
-                className="w-full p-2 border rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600"
+                className="w-full p-3 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 value={formData.initialInvestment}
                 onChange={(e) => setFormData({ ...formData, initialInvestment: e.target.value })}
               />
@@ -192,21 +189,23 @@ export default function Home() {
 
           <button
             type="submit"
-            className="w-full mt-6 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors dark:bg-blue-500 dark:hover:bg-blue-600"
+            className="w-full mt-8 bg-gradient-to-r from-blue-600 to-teal-500 text-white py-3 px-6 rounded-lg hover:from-blue-700 hover:to-teal-600 transition-all transform hover:scale-[1.02] active:scale-[0.98] font-medium shadow-md"
           >
             Calculate Profitability
           </button>
         </form>
 
         {error && (
-          <div className="mt-6 p-4 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 rounded">
+          <div className="mt-6 p-4 bg-red-100/80 dark:bg-red-900/20 text-red-700 dark:text-red-400 rounded-lg border border-red-200 dark:border-red-800">
             {error}
           </div>
         )}
 
         {results && (
-          <div className="mt-6 bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
-            <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Mining Profitability Results</h2>
+          <div className="mt-6 bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700">
+            <h2 className="text-2xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-teal-500">
+              Mining Profitability Results
+            </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
                 <h3 className="font-medium mb-2 text-gray-900 dark:text-white">Daily</h3>
