@@ -1,6 +1,5 @@
 "use client";
 import { useState } from "react";
-import Image from "next/image";
 
 interface FormData {
   hashRate: string;
@@ -35,10 +34,10 @@ interface MiningResults {
 
 export default function Home() {
   const [formData, setFormData] = useState<FormData>({
-    hashRate: "200",
-    power: "3250",
+    hashRate: "13200000", // 13.2 EH/s = 13,200,000 TH/s
+    power: "665000000", // 665 MW = 665,000,000 W
     costPerKwh: "0.12",
-    initialInvestment: "12000",
+    initialInvestment: "638400000", // 53,200 miners * $12,000 = $638.4M
   });
 
   const [results, setResults] = useState<MiningResults | null>(null);
@@ -56,8 +55,6 @@ export default function Home() {
         initial_investment: parseFloat(formData.initialInvestment),
       };
 
-      console.log('Sending payload:', payload);
-
       const response = await fetch("http://localhost:8000/calculate", {
         method: "POST",
         headers: {
@@ -67,21 +64,13 @@ export default function Home() {
       });
       
       const data = await response.json();
-      console.log('Raw response data:', data);
 
       if (!response.ok) {
-        const errorMessage = data.detail || 'Failed to calculate mining profitability';
-        throw new Error(errorMessage);
-      }
-
-      if (!data || typeof data !== 'object') {
-        console.error('Unexpected response format:', data);
-        throw new Error('Invalid response format from server');
+        throw new Error(data.detail || 'Failed to calculate mining profitability');
       }
 
       setResults(data);
     } catch (err) {
-      console.error('Full error:', err);
       setError(err instanceof Error ? err.message : "Failed to calculate mining profitability. Please try again.");
     }
   };
