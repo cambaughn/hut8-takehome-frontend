@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface FormData {
   hashRate: string;
@@ -32,6 +32,12 @@ interface MiningResults {
   costToMine: number;
 }
 
+interface BitcoinPrice {
+  bitcoin: {
+    usd: number;
+  }
+}
+
 export default function Home() {
   const [formData, setFormData] = useState<FormData>({
     hashRate: "200", 
@@ -42,6 +48,31 @@ export default function Home() {
 
   const [results, setResults] = useState<MiningResults | null>(null);
   const [error, setError] = useState("");
+  const [btcPrice, setBtcPrice] = useState<number | null>(null);
+  const [priceError, setPriceError] = useState("");
+
+  useEffect(() => {
+    const fetchBtcPrice = async () => {
+      try {
+        const response = await fetch(
+          'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd'
+        );
+        if (!response.ok) throw new Error('Failed to fetch Bitcoin price');
+        const data: BitcoinPrice = await response.json();
+        setBtcPrice(data.bitcoin.usd);
+        setPriceError("");
+      } catch (err) {
+        console.error('Failed to fetch Bitcoin price:', err);
+        setPriceError("Unable to fetch current Bitcoin price");
+      }
+    };
+
+    fetchBtcPrice();
+    // Refresh price every minute
+    const interval = setInterval(fetchBtcPrice, 60000);
+    
+    return () => clearInterval(interval);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -81,6 +112,21 @@ export default function Home() {
         <h1 className="text-3xl font-bold mb-8 text-center text-gray-900 dark:text-white">
           Bitcoin Mining Calculator
         </h1>
+
+        <div className="text-center mb-8">
+          {btcPrice ? (
+            <div className="text-xl text-gray-700 dark:text-gray-300">
+              Current BTC Price: <span className="font-semibold">${btcPrice.toLocaleString()}</span>
+              <div className="text-sm text-gray-500 dark:text-gray-400">
+                Updates every minute
+              </div>
+            </div>
+          ) : (
+            <div className="text-red-600 dark:text-red-400">
+              {priceError || "Loading Bitcoin price..."}
+            </div>
+          )}
+        </div>
 
         <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
