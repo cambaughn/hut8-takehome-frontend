@@ -7,7 +7,7 @@
   --foreground: #171717;
 }
 
-[data-theme='dark'] {
+.dark {
   --background: #0a0a0a;
   --foreground: #ededed;
 }

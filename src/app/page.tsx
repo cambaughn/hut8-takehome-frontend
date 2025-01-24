@@ -34,10 +34,10 @@ interface MiningResults {
 
 export default function Home() {
   const [formData, setFormData] = useState<FormData>({
-    hashRate: "13200000", // 13.2 EH/s = 13,200,000 TH/s
-    power: "665000000", // 665 MW = 665,000,000 W
+    hashRate: "200", 
+    power: "3000", 
     costPerKwh: "0.12",
-    initialInvestment: "638400000", // 53,200 miners * $12,000 = $638.4M
+    initialInvestment: "12000",
   });
 
   const [results, setResults] = useState<MiningResults | null>(null);
@@ -153,7 +153,7 @@ export default function Home() {
         </form>
 
         {error && (
-          <div className="mt-6 p-4 bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-200 rounded">
+          <div className="mt-6 p-4 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 rounded">
             {error}
           </div>
         )}
